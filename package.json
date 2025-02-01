@@ -1,0 +1,13 @@
+{
+  "name": "pluralsight-htmx-foundations",
+  "type": "module",
+  "scripts": {
+    "start": "tsx --watch src/index.js",
+    "create-database": "sqlite3 ./db/database.sqlite < db/seed.sql"
+  },
+  "dependencies": {
+    "@hono/node-server": "1.13.8",
+    "hono": "4.6.20",
+    "tsx": "^4.19.2"
+  }
+}
