@@ -2,9 +2,9 @@
 
 ## Getting started
 
-Each demo has it's only folder and new application at the point of the end of the demo.
+Each demo has it's own folder and new application at the end of the previous demo.
 
-To run a demo cd into the demo folder you want and run the below code.
+To run a demo cd into the demo folder you want and start.
 
 ```
 cd demo-0
