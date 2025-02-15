@@ -35,7 +35,7 @@ app.get('/', async (c) => {
 
 app.post("/", async (c) => {
   const { name } = await c.req.parseBody();
-  await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
+  const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.redirect("/");
 });
@@ -47,10 +47,7 @@ app.delete("/:id", async (c) => {
   return c.body(null);
 });
 
-const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
-
 serve({
   fetch: app.fetch,
-  port
+  port: 3000
 })
