@@ -15,14 +15,18 @@ app.get('/', async (c) => {
               <meta name="viewport" content="width=device-width">
               <meta name="description" content="htmx todos">
               <title>Pluralsight HTMX Foundation</title>
-          </head>
+                        </head>
           <body>
             <form method="post" action="/">
               <input name="name" placeholder="New todo" required autocomplete="off">
               <button type="submit">Add</button>
             </form>
             <ul>
-              ${todos.map(todo => `<li>${todo.name} <a href="/delete/${todo.id}">delete</a></li>`).join('')}
+              ${todos.map(todo => `
+                  <li>${todo.name}
+                    <a href="/delete/${todo.id}">delete</a>
+                  </li>
+                `).join('')}
             </ul>
           </body>
       <html>
@@ -36,11 +40,11 @@ app.post("/", async (c) => {
   return c.redirect("/");
 });
 
-app.get("/delete/:id", async (c) => {
+app.delete("/:id", async (c) => {
   const id = c.req.param("id");
   await db.prepare("DELETE FROM todos WHERE id = ?").bind(id).run();
 
-  return c.redirect("/");
+  return c.body(null);
 });
 
 const port = 3000
