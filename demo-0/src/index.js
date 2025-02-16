@@ -36,7 +36,7 @@ app.get('/', async (c) => {
 
 app.post("/", async (c) => {
   const { name } = await c.req.parseBody();
-  const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
+  const { lastInsertRowId } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.redirect("/");
 });
@@ -45,7 +45,7 @@ app.get("/delete/:id", async (c) => {
   const id = c.req.param("id");
   await db.prepare("DELETE FROM todos WHERE id = ?").bind(id).run();
 
-  return c.redirect("/")
+  return c.redirect("/");
 });
 
 serve({
