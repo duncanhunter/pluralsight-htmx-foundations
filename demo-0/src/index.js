@@ -22,12 +22,13 @@ app.get('/', async (c) => {
               <button type="submit">Add</button>
             </form>
             <ul>
-              ${todos.map(todo => `
+                ${todos.map(todo => `
                   <li>${todo.name}
                     <a href="/delete/${todo.id}">delete</a>
                   </li>
                 `).join('')}
-            </ul>
+             </ul>
+            <div><span id="todo-count">${todos.length}</span> items left</div>
           </body>
       <html>
   `);
@@ -40,11 +41,11 @@ app.post("/", async (c) => {
   return c.redirect("/");
 });
 
-app.delete("/:id", async (c) => {
+app.get("/delete/:id", async (c) => {
   const id = c.req.param("id");
   await db.prepare("DELETE FROM todos WHERE id = ?").bind(id).run();
 
-  return c.body(null);
+  return c.redirect("/")
 });
 
 serve({
