@@ -17,20 +17,20 @@ app.get('/', async (c) => {
               <title>Pluralsight HTMX Foundation</title>
               <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
               <style>
-                .deleting, .loading-form {
+                .deleting, .loading {
                   display: none;
                 }
                 .htmx-request.deleting,
                 .htmx-request .deleting,
-                .htmx-request.loading-form,
-                .htmx-request .loading-form  {
+                .htmx-request.loading,
+                .htmx-request .loading  {
                   display: inline
                 }
               </style>
           </head>
           <body>
             <form
-              hx-indicator=".loading-form"
+              hx-indicator=".loading"
               hx-target="next ul"
               hx-swap="afterbegin"
               hx-post="/">
@@ -51,7 +51,7 @@ app.get('/', async (c) => {
                   </li>
                 `).join('')}
                 <div class="deleting">deleting...</div>
-                <div class="loading-form">loading form...</div>
+                <div class="loading">loading form...</div>
             </ul>
             <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count">${todos.length}</span> items left</div>
           </body>
