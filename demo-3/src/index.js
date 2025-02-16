@@ -4,9 +4,12 @@ import Database from 'better-sqlite3';
 
 const app = new Hono();
 const db = new Database('./db/database.sqlite');
+const PAGE_SIZE = 10;
 
 app.get('/', async (c) => {
-  const todos = await db.prepare("SELECT * FROM todos").all();
+  const page = 1;
+  const offset = (page - 1) * PAGE_SIZE;
+  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all(PAGE_SIZE, offset);
 
   return c.html(`
     <!DOCTYPE html>
