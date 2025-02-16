@@ -53,7 +53,7 @@ app.get('/', async (c) => {
                 <div class="deleting">deleting...</div>
                 <div class="loading-form">loading form...</div>
             </ul>
-            <div><span id="todo-count">${todos.length}</span> items left</div>
+            <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count">${todos.length}</span> items left</div>
           </body>
       <html>
   `);
@@ -63,17 +63,15 @@ app.post("/", async (c) => {
   const { name } = await c.req.parseBody();
   const existingTodo = await db.prepare("SELECT * FROM todos WHERE name = ?").get(name);
 
-  if(existingTodo) {
+  if (existingTodo) {
     return c.html(`
       <div id="error" style="color:red;" hx-swap-oob="true">Todo already exists</div>
     `)
   }
 
   const { lastInsertRowId } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
-  const todos = await db.prepare("SELECT * FROM todos").all();
 
   return c.html(`
-    <span id="todo-count" hx-swap-oob="true">${todos.length}</span>
     <div id="error" style="color:red;" hx-swap-oob="true"></div>
     <li>${name}
       <button
@@ -83,16 +81,21 @@ app.post("/", async (c) => {
           delete
       </button>
     </li>
-    `);
+    `, 201, { "HX-Trigger": "todoAdded" });
 });
 
 app.delete("/:id", async (c) => {
   const id = c.req.param("id");
   await db.prepare("DELETE FROM todos WHERE id = ?").bind(id).run();
+
+  return c.body(null, 201, { "HX-Trigger": "todoDeleted" });
+});
+
+app.get("/todo-count", async (c) => {
   const todos = await db.prepare("SELECT * FROM todos").all();
 
-  return c.html(`<span id="todo-count" hx-swap-oob="true">${todos.length}</span>`);
-});
+  return c.html(todos.length);
+})
 
 serve({
   fetch: app.fetch,
