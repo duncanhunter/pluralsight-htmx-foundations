@@ -15,7 +15,7 @@ app.get('/', async (c) => {
               <meta name="viewport" content="width=device-width">
               <meta name="description" content="htmx todos">
               <title>Pluralsight HTMX Foundation</title>
-                        </head>
+          </head>
           <body>
             <form method="post" action="/">
               <input name="name" placeholder="New todo" required autocomplete="off">
