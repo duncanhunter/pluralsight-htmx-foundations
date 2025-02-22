@@ -9,7 +9,7 @@ const PAGE_SIZE = 10;
 app.get('/', async (c) => {
   const page = 1;
   const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all(PAGE_SIZE, offset);
+  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
 
   return c.html(`
     <!DOCTYPE html>
@@ -50,8 +50,14 @@ app.get('/', async (c) => {
             </form>
             <div id="error"></div>
             <ul>
-                ${todos.map(todo => `
-                  <li>${todo.name}
+                ${todos.map((todo, index) => `
+                  <li
+                    ${index === PAGE_SIZE ? `
+                        hx-get="/todos?page=${page + 1}"
+                        hx-trigger="revealed"
+                        hx-swap="afterend"
+                      ` : ''}
+                  >${todo.name}
                     <button
                       hx-indicator=".deleting"
                       hx-target="closest li"
@@ -132,6 +138,33 @@ app.post("/search", async (c) => {
         <div class="loading">loading...</div>
       `).join('')}
   `);
+});
+
+app.get('/todos', async (c) => {
+  const page = parseInt(c.req.query('page'))
+  const offset = (page - 1) * PAGE_SIZE;
+  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
+
+  const htmlPartial = todos.map((todo, index) => `
+    <span hx-swap-oob="true" id="todo-count">${todos.length + (offset)}</span>
+    <li
+      ${index === PAGE_SIZE ? `
+          hx-get="/todos?page=${page + 1}"
+          hx-trigger="revealed"
+          hx-swap="afterend"
+        ` : ''}
+    >${todo.name}
+      <button
+        hx-indicator=".deleting"
+        hx-target="closest li"
+        hx-swap="outerHTML"
+        hx-delete="/${todo.id}">
+          delete
+      </button>
+    </li>
+  `).join('');
+
+  return c.html(htmlPartial, 201, { "HX-Trigger": "todoAdded" });
 });
 
 serve({
