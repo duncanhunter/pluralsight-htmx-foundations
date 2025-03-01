@@ -24,9 +24,7 @@ app.get('/', async (c) => {
                   display: none;
                 }
                 .htmx-request.deleting,
-                .htmx-request .deleting,
-                .htmx-request.loading,
-                .htmx-request .loading  {
+                .htmx-request.loading {
                   display: inline
                 }
               </style>

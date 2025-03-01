@@ -6,7 +6,7 @@ const app = new Hono();
 const db = new Database('./db/database.sqlite');
 
 app.get('/', async (c) => {
-  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
+  const todos = await db.prepare("SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(`
     <!DOCTYPE html>
@@ -21,9 +21,7 @@ app.get('/', async (c) => {
                   display: none;
                 }
                 .htmx-request.deleting,
-                .htmx-request .deleting,
-                .htmx-request.loading,
-                .htmx-request .loading  {
+                .htmx-request.loading {
                   display: inline
                 }
               </style>
@@ -51,7 +49,7 @@ app.get('/', async (c) => {
                   </li>
                 `).join('')}
                 <div class="deleting">deleting...</div>
-                <div class="loading">loading form...</div>
+                <div class="loading">loading...</div>
             </ul>
             <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count">${todos.length}</span> items left</div>
           </body>
@@ -92,7 +90,7 @@ app.delete("/:id", async (c) => {
 });
 
 app.get("/todo-count", async (c) => {
-  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
+  const todos = await db.prepare("SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
 })

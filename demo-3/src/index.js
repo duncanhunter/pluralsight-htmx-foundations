@@ -9,7 +9,7 @@ const PAGE_SIZE = 10;
 app.get('/', async (c) => {
   const page = 1;
   const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
+  const todos = db.prepare("SELECT * FROM todos ORDER BY id DESC LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
 
   return c.html(`
     <!DOCTYPE html>
@@ -24,9 +24,7 @@ app.get('/', async (c) => {
                   display: none;
                 }
                 .htmx-request.deleting,
-                .htmx-request .deleting,
-                .htmx-request.loading,
-                .htmx-request .loading  {
+                .htmx-request.loading {
                   display: inline
                 }
               </style>
@@ -109,7 +107,7 @@ app.delete("/:id", async (c) => {
 });
 
 app.get("/todo-count", async (c) => {
-  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
+  const todos = await db.prepare("SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
 })
