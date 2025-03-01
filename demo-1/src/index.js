@@ -6,7 +6,7 @@ const app = new Hono();
 const db = new Database('./db/database.sqlite');
 
 app.get('/', async (c) => {
-  const todos = await db.prepare("SELECT * FROM todos").all();
+  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(`
     <!DOCTYPE html>

@@ -9,7 +9,7 @@ const PAGE_SIZE = 10;
 app.get('/', async (c) => {
   const page = 1;
   const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
+  const todos = db.prepare("SELECT * FROM todos ORDER BY id DESC LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
 
   return c.html(`
     <!DOCTYPE html>
@@ -33,7 +33,8 @@ app.get('/', async (c) => {
               <script>
                 window.addEventListener("load", () => {
                   const list = document.querySelector('ul');
-                  list.addEventListener('htmx:afterSettle', () => {
+                  document.addEventListener('htmx:afterRequest', () => {
+                    console.log('htmx:afterRequest')
                     const count = list.querySelectorAll('li').length;
                     document.getElementById('todo-count').textContent = count;
                   });
@@ -79,6 +80,7 @@ app.get('/', async (c) => {
                 <button type="submit">Add</button>
             </form>
             <div id="error"></div>
+            <div><span id="todo-count">${todos.length}</span> items left</div>
             <ul>
                 ${todos.map((todo, index) => `
                   <li
@@ -106,7 +108,6 @@ app.get('/', async (c) => {
               <button id="dialogConfirmButton">Yes</button>
               <button id="dialogCancelButton">No</button>
             </dialog>
-            <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count">${todos.length}</span> items left</div>
           </body>
       <html>
   `);
@@ -146,7 +147,7 @@ app.delete("/:id", async (c) => {
 });
 
 app.get("/todo-count", async (c) => {
-  const todos = await db.prepare("SELECT * FROM todos").all();
+  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
 })
@@ -158,7 +159,7 @@ app.post("/search", async (c) => {
     ? db
       .prepare("SELECT * FROM todos WHERE name LIKE ?")
       .all(`%${searchText}%`)
-    : db.prepare("SELECT * FROM todos").all();
+    : db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(`
     ${todos.map(todo => `
@@ -180,11 +181,10 @@ app.post("/search", async (c) => {
 
 app.get('/todos', async (c) => {
   const page = parseInt(c.req.query('page'))
-  const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
+  const offset = (page - 1) * (PAGE_SIZE + 1);
+  const todos = db.prepare("SELECT * FROM todos ORDER BY id DESC LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
 
   const htmlPartial = todos.map((todo, index) => `
-    <span hx-swap-oob="true" id="todo-count">${todos.length + (offset)}</span>
     <li
       ${index === PAGE_SIZE ? `
           hx-get="/todos?page=${page + 1}"

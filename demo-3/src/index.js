@@ -109,7 +109,7 @@ app.delete("/:id", async (c) => {
 });
 
 app.get("/todo-count", async (c) => {
-  const todos = await db.prepare("SELECT * FROM todos").all();
+  const todos = await db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
 })
@@ -121,7 +121,7 @@ app.post("/search", async (c) => {
     ? db
       .prepare("SELECT * FROM todos WHERE name LIKE ?")
       .all(`%${searchText}%`)
-    : db.prepare("SELECT * FROM todos").all();
+    : db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(`
     ${todos.map(todo => `
