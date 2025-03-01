@@ -86,7 +86,7 @@ app.post("/", async (c) => {
     `)
   }
 
-  const { lastInsertRowId } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
+  const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.html(`
     <div id="error" style="color:red;" hx-swap-oob="true"></div>
@@ -94,7 +94,7 @@ app.post("/", async (c) => {
       <button
         hx-target="closest li"
         hx-swap="outerHTML"
-        hx-delete="/${lastInsertRowId}">
+        hx-delete="/${lastInsertRowid}">
           delete
       </button>
     </li>

@@ -122,7 +122,7 @@ app.post("/", async (c) => {
     `)
   }
 
-  const { lastInsertRowId } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
+  const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.html(`
     <div id="error" style="color:red;" hx-swap-oob="true"></div>
@@ -130,7 +130,8 @@ app.post("/", async (c) => {
       <button
         hx-target="closest li"
         hx-swap="outerHTML"
-        hx-delete="/${lastInsertRowId}">
+        hx-delete="/${lastInsertRowid}"
+        hx-confirm="Do you really want to delete me">
           delete
       </button>
     </li>
@@ -166,7 +167,8 @@ app.post("/search", async (c) => {
             hx-indicator=".deleting"
             hx-target="closest li"
             hx-swap="outerHTML"
-            hx-delete="/${todo.id}">
+            hx-delete="/${todo.id}"
+            hx-confirm="Do you really want to delete me">
               delete
           </button>
         </li>
@@ -194,7 +196,8 @@ app.get('/todos', async (c) => {
         hx-indicator=".deleting"
         hx-target="closest li"
         hx-swap="outerHTML"
-        hx-delete="/${todo.id}">
+        hx-delete="/${todo.id}"
+        hx-confirm="Do you really want to delete me">
           delete
       </button>
     </li>
@@ -205,5 +208,5 @@ app.get('/todos', async (c) => {
 
 serve({
   fetch: app.fetch,
-  port: 3000
+  port: 4000
 });

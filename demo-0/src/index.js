@@ -36,7 +36,7 @@ app.get('/', async (c) => {
 
 app.post("/", async (c) => {
   const { name } = await c.req.parseBody();
-  const { lastInsertRowId } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
+  const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.redirect("/");
 });
