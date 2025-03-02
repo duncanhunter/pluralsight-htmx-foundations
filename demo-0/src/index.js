@@ -15,6 +15,7 @@ app.get('/', async (c) => {
               <meta name="viewport" content="width=device-width">
               <meta name="description" content="htmx todos">
               <title>Pluralsight HTMX Foundation</title>
+              <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
           </head>
           <body>
             <form method="post" action="/">
@@ -24,7 +25,10 @@ app.get('/', async (c) => {
             <ul>
                 ${todos.map(todo => `
                   <li>${todo.name}
-                    <a href="/delete/${todo.id}">delete</a>
+                    <button 
+                      hx-target="closest li"
+                      hx-swap="outerHTML"
+                      hx-delete="/${todo.id}">delete</button>
                   </li>
                 `).join('')}
              </ul>
@@ -41,11 +45,11 @@ app.post("/", async (c) => {
   return c.redirect("/");
 });
 
-app.get("/delete/:id", async (c) => {
+app.delete("/:id", async (c) => {
   const id = c.req.param("id");
   await db.prepare("DELETE FROM todos WHERE id = ?").bind(id).run();
 
-  return c.redirect("/");
+  return c.body(null);
 });
 
 serve({
