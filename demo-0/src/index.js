@@ -18,7 +18,10 @@ app.get('/', async (c) => {
               <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
           </head>
           <body>
-            <form method="post" action="/">
+            <form 
+              hx-swap="afterBegin"
+              hx-target="next ul"
+              hx-post="/">
               <input name="name" placeholder="New todo" required autocomplete="off">
               <button type="submit">Add</button>
             </form>
@@ -42,7 +45,13 @@ app.post("/", async (c) => {
   const { name } = await c.req.parseBody();
   const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
-  return c.redirect("/");
+  return c.html(`
+    <li>${name}
+      <button 
+        hx-target="closest li"
+        hx-swap="outerHTML"
+        hx-delete="/${lastInsertRowid}">delete</button>
+    </li>`);
 });
 
 app.delete("/:id", async (c) => {
