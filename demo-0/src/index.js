@@ -16,9 +16,19 @@ app.get('/', async (c) => {
               <meta name="description" content="htmx todos">
               <title>Pluralsight HTMX Foundation</title>
               <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
-          </head>
+              <style>
+                .deleting, .loading {
+                  display: none;
+                }
+                .htmx-request.deleting,
+                .htmx-request.loading {
+                  display: inline;
+                }
+              </style>
+            </head>
           <body>
             <form 
+              hx-indicator=".loading"
               hx-swap="afterBegin"
               hx-target="next ul"
               hx-post="/">
@@ -29,11 +39,15 @@ app.get('/', async (c) => {
                 ${todos.map(todo => `
                   <li>${todo.name}
                     <button 
+                      hx-indicator=".deleting"
                       hx-target="closest li"
                       hx-swap="outerHTML"
-                      hx-delete="/${todo.id}">delete</button>
+                      hx-delete="/${todo.id}">
+                        delete</button>
                   </li>
                 `).join('')}
+                <div class="deleting">deleting...</div>
+                <div class="loading">loading...</div>
              </ul>
             <div><span id="todo-count">${todos.length}</span> items left</div>
           </body>
