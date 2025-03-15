@@ -1,4 +1,4 @@
-# Pluralsight HTMX Foundations
+# Pluralsight htmx Foundations
 
 ## Getting started
 
