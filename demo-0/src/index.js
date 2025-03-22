@@ -14,7 +14,7 @@ app.get('/', async (c) => {
           <head>
               <meta name="viewport" content="width=device-width">
               <meta name="description" content="htmx todos">
-              <title>Pluralsight htmx Foundation</title>
+              <title>Pluralsight htmx Foundations</title>
             </head>
           <body>
             <form method="post" action="/">
@@ -24,7 +24,7 @@ app.get('/', async (c) => {
             <ul>
                 ${todos.map(todo => `
                   <li>${todo.name}
-                    <a href="/${todo.id}">delete</a>
+                    <a href="/delete/${todo.id}">delete</a>
                   </li>
                 `).join('')}
              </ul>

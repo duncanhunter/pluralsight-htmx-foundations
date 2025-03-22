@@ -17,7 +17,7 @@ app.get('/', async (c) => {
           <head>
               <meta name="viewport" content="width=device-width">
               <meta name="description" content="htmx todos">
-              <title>Pluralsight htmx Foundation</title>
+              <title>Pluralsight htmx Foundations</title>
               <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
               <style>
                 .deleting, .loading {
