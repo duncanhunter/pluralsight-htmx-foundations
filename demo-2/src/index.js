@@ -63,14 +63,14 @@ app.post("/", async (c) => {
 
   if (existingTodo) {
     return c.html(`
-      <div id="error" style="color:red;" hx-swap-oob="true">Todo already exists</div>
+      <div id="error" hx-swap-oob="true" style="color:red;">Todo already exists</div>
     `)
   }
 
   const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.html(`
-    <div id="error" style="color:red;" hx-swap-oob="true"></div>
+    <div id="error" hx-swap-oob="true" style="color:red;"></div>
     <li>${name}
       <button
         hx-target="closest li"
