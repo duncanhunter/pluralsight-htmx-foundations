@@ -62,9 +62,7 @@ app.post("/", async (c) => {
   const existingTodo = await db.prepare("SELECT * FROM todos WHERE name = ?").get(name);
 
   if (existingTodo) {
-    return c.html(`
-      <div id="error" hx-swap-oob="true" style="color:red;">Todo already exists</div>
-    `)
+    return c.html(`<div id="error" hx-swap-oob="true" style="color:red;">Todo already exists</div>`)
   }
 
   const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
