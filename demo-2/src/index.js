@@ -35,7 +35,6 @@ app.get('/', async (c) => {
                 <input name="name" placeholder="New todo" required autocomplete="off">
                 <button type="submit">Add</button>
             </form>
-            <div id="error"></div>
             <ul>
                 ${todos.map(todo => `
                   <li>${todo.name}
