@@ -91,7 +91,7 @@ app.get("/todo-count", async (c) => {
   const todos = await db.prepare("SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
-})
+});
 
 serve({
   fetch: app.fetch,
