@@ -4,13 +4,8 @@ import Database from 'better-sqlite3';
 
 const app = new Hono();
 const db = new Database('./db/database.sqlite');
-const PAGE_SIZE = 10;
 
 app.get('/', async (c) => {
-  const page = 1;
-  const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos ORDER BY id DESC LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
-
   return c.html(`
     <!DOCTYPE html>
       <html lang="en">
@@ -31,13 +26,13 @@ app.get('/', async (c) => {
           </head>
           <body>
             <input
-              type="search"
-              name="searchText"
-              placeholder="Search todo's"
-              hx-post="/search"
-              hx-target="next ul"
-              hx-indicator=".loading"
-              hx-trigger="input changed delay:500ms, keyup[key=='Enter']">
+                type="search"
+                name="searchText"
+                placeholder="search..."
+                hx-get="/search"
+                hx-target="next ul"
+                hx-indicator=".loading"
+                hx-trigger="input changed delay:500ms, keyup[key=='ENTER'], load"/>
             <form
               hx-indicator=".loading"
               hx-target="next ul"
@@ -47,28 +42,10 @@ app.get('/', async (c) => {
                 <button type="submit">Add</button>
             </form>
             <div id="error"></div>
-            <ul>
-                ${todos.map((todo, index) => `
-                  <li
-                    ${index === PAGE_SIZE ? `
-                        hx-get="/todos?page=${page + 1}"
-                        hx-trigger="revealed"
-                        hx-swap="afterend"
-                      ` : ''}
-                  >${todo.name}
-                    <button
-                      hx-indicator=".deleting"
-                      hx-target="closest li"
-                      hx-swap="outerHTML"
-                      hx-delete="/${todo.id}">
-                        delete
-                    </button>
-                  </li>
-                `).join('')}
-                <div class="deleting">deleting...</div>
-                <div class="loading">loading...</div>
-            </ul>
-            <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count">${todos.length}</span> items left</div>
+            <ul></ul>
+            <div class="deleting">deleting...</div>
+            <div class="loading">loading...</div>
+            <div><span hx-trigger="todoDeleted from:body, todoAdded from:body" hx-get="/todo-count" id="todo-count"></span> items left</div>
           </body>
       <html>
   `);
@@ -79,13 +56,13 @@ app.post("/", async (c) => {
   const existingTodo = await db.prepare("SELECT * FROM todos WHERE name = ?").get(name);
 
   if (existingTodo) {
-    return c.html(`<div id="error" style="color:red;" hx-swap-oob="true">Todo already exists</div>`)
+    return c.html(`<div id="error" hx-swap-oob="true" style="color:red;">Todo already exists</div>`)
   }
 
   const { lastInsertRowid } = await db.prepare("INSERT INTO todos (name) VALUES (?)").bind(name).run();
 
   return c.html(`
-    <div id="error" style="color:red;" hx-swap-oob="true"></div>
+    <div id="error" hx-swap-oob="true" style="color:red;"></div>
     <li>${name}
       <button
         hx-target="closest li"
@@ -108,59 +85,39 @@ app.get("/todo-count", async (c) => {
   const todos = await db.prepare("SELECT * FROM todos ORDER BY id DESC").all();
 
   return c.html(todos.length);
-})
+});
 
-app.post("/search", async (c) => {
-  const { searchText } = await c.req.parseBody();
+app.get("/search", async (c) => {
+  const { searchText, page = 1 } = await c.req.query();
+  const pageSize = 20;
+  const offset = (page - 1) * pageSize;
 
   const todos = searchText
     ? db
-      .prepare("SELECT * FROM todos WHERE name LIKE ?")
-      .all(`%${searchText}%`)
-    : db.prepare(" SELECT * FROM todos ORDER BY id DESC").all();
+      .prepare("SELECT * FROM todos WHERE name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?")
+      .all(`%${searchText}%`, pageSize, offset)
+    : db.prepare(" SELECT * FROM todos ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset);
 
   return c.html(`
-    ${todos.map(todo => `
-        <li>${todo.name}
-          <button
-            hx-indicator=".deleting"
-            hx-target="closest li"
-            hx-swap="outerHTML"
-            hx-delete="/${todo.id}">
-              delete
-          </button>
-        </li>
-        <div class="deleting">deleting...</div>
-        <div class="loading">loading...</div>
-      `).join('')}
-  `);
-});
-
-app.get('/todos', async (c) => {
-  const page = parseInt(c.req.query('page'))
-  const offset = (page - 1) * PAGE_SIZE;
-  const todos = db.prepare("SELECT * FROM todos LIMIT ? OFFSET ?").all((PAGE_SIZE + 1), offset);
-
-  const htmlPartial = todos.map((todo, index) => `
-    <span hx-swap-oob="true" id="todo-count">${todos.length + (offset)}</span>
-    <li
-      ${index === PAGE_SIZE ? `
-          hx-get="/todos?page=${page + 1}"
-          hx-trigger="revealed"
-          hx-swap="afterend"
-        ` : ''}
-    >${todo.name}
-      <button
-        hx-indicator=".deleting"
-        hx-target="closest li"
-        hx-swap="outerHTML"
-        hx-delete="/${todo.id}">
-          delete
-      </button>
-    </li>
-  `).join('');
-
-  return c.html(htmlPartial, 201, { "HX-Trigger": "todoAdded" });
+   ${todos.map((todo, index) => `
+       <li
+        ${index === pageSize - 1 ? `
+            hx-get="/search?page=${page + 1}"
+            hx-trigger="revealed"
+            hx-swap="afterend"
+            hx-include="[name='searchText']"
+        `: ''}
+       >${todo.name}
+         <button
+           hx-indicator=".deleting"
+           hx-target="closest li"
+           hx-swap="outerHTML"
+           hx-delete="/${todo.id}">
+             delete
+         </button>
+       </li>
+     `).join('')}
+ `);
 });
 
 serve({
