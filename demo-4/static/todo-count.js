@@ -5,7 +5,6 @@ window.addEventListener("load", function () {
         document.getElementById('todo-count').textContent = count;
     };
 
-    document.body.addEventListener("htmx:afterRequest", updateCount);
-    // listElement.addEventListener("htmx:afterSettle", updateCount);
-    // listElement.addEventListener("htmx:afterRequest", updateCount);
+    listElement.addEventListener("htmx:afterSettle", updateCount);
+    listElement.addEventListener("htmx:afterRequest", updateCount);
 });
